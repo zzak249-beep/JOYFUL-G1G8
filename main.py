@@ -1,5 +1,6 @@
 import logging
 import os
+import signal
 import threading
 import time
 from collections import Counter
@@ -126,6 +127,11 @@ def main():
         f"Comandos: /stats /semana /abiertas /estado /pausa /reanudar /cerrartodo /exportar")
 
     stop = threading.Event()
+    for _sig in (signal.SIGTERM, signal.SIGINT):      # Railway envía SIGTERM al redesplegar: cerrar rápido y limpio
+        try:
+            signal.signal(_sig, lambda *_: stop.set())
+        except Exception:
+            pass
     if C.COMMANDS_ON and C.TG_TOKEN and C.TG_CHAT:
         handlers = {"/stats": lambda: notify(stats_msg()), "/estadisticas": lambda: notify(stats_msg()),
                     "/semana": lambda: notify(stats_msg(7)), "/week": lambda: notify(stats_msg(7)),
@@ -152,7 +158,7 @@ def main():
             C.DRY_RUN = True
             notify(f"🚨 No pude conectar con BingX ({e}). Revisa API key/secret y permisos. Paso a SOLO SEÑALES.")
 
-    while True:
+    while not stop.is_set():
         try:
             now = time.time()
             if C.SCAN_ALL and now - last_uni > C.UNIVERSE_REFRESH:
@@ -176,6 +182,8 @@ def main():
             if now % C.TF_SEC >= 4:
                 found = []
                 for sym in scan:
+                    if stop.is_set():
+                        break
                     if last_bar.get(sym) == bar_id:
                         continue
                     try:
@@ -249,8 +257,11 @@ def main():
         except Exception as e:
             log.exception("Error en bucle")
             notify(f"⚠️ Error en bucle principal: {e}")
-            time.sleep(30)
-        time.sleep(10)
+            stop.wait(30)
+        stop.wait(10)
+    ledger.save()
+    seen.save()
+    notify("⏹ Bot detenido (redespliegue o parada). Los SL/TP ya colocados siguen activos en BingX.")
 
 
 if __name__ == "__main__":

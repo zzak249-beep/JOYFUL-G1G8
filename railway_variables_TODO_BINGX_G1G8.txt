@@ -1,0 +1,50 @@
+# ===== Escanear TODO BingX (cripto + acciones + índices + divisas + materias primas) =====
+# Motor G1-G8: servicio propio (volumen, bot de Telegram y subcuenta de BingX propios). Sustituye los PEGA_AQUI.
+STRATEGY=granville
+BOT_NAME=G1-G8
+TF=15m
+BOOK=1
+
+# --- universo ---
+SYMBOLS=ALL
+ASSET_CLASSES=crypto,stock,index,fx,commodity
+MAX_SYMBOLS=1000
+MIN_VOL_USDT=300000
+MAX_SPREAD_PCT=0.08
+MAX_SPREAD_R=0.15
+STOCK_RTH_ONLY=true
+UNIVERSE_REFRESH=3600
+EXCLUDE=
+
+# --- velocidad (con ~900 símbolos el escaneo tarda ~4 min por vela; no bajes de 200 ms o BingX da error 100410) ---
+RATE_LIMIT_MS=250
+MAX_SIGNALS_PER_SCAN=15
+
+# --- modo ---
+DRY_RUN=false
+BINGX_DEMO=false
+BINGX_API_KEY=PEGA_AQUI_API_KEY_SUBCUENTA_G1G8
+BINGX_API_SECRET=PEGA_AQUI_API_SECRET_SUBCUENTA_G1G8
+POSITION_MODE=hedge
+TELEGRAM_TOKEN=PEGA_AQUI_TOKEN_DE_UN_BOT_EXCLUSIVO_PARA_G1G8
+TELEGRAM_CHAT_ID=PEGA_AQUI_TU_CHAT_ID
+TELEGRAM_COMMANDS=true
+DATA_DIR=/data
+
+# --- riesgo ---
+RISK_PCT=0.5
+MAX_LEV=3
+LEVERAGE=3
+MAX_POSITIONS=4
+MAX_SAME_DIR=2
+DAILY_LOSS_PCT=2
+TP_ORDER=trigger
+SHADOW_ON=true
+LEARN_BLOCKED=true
+KILL_MIN_N=15
+KILL_GAP_R=0.5
+SLIP_MAX_R=0.15
+
+# --- solo en modo señales (DRY_RUN=true) ---
+ACCOUNT_USDT=1000
+MAX_OPEN_TRADES=8
